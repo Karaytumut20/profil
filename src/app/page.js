@@ -1,65 +1,52 @@
-import Image from "next/image";
+// src/app/page.js
+import { supabase } from '../lib/supabaseClient'; // Bu yolun da doğru olduğundan emin olun
+import { Container, Box } from '@mui/material';
+import Navbar from './components/public/Navbar';
+import Hero from './components/public/Hero';
+import ProjectsGrid from './components/public/ProjectsGrid'; // YOLU DÜZELT
+import Skills from './components/public/Skills';       // YOLU DÜZELT
+import Footer from './components/public/Footer';
 
-export default function Home() {
+// Verileri sunucuda paralel olarak çek
+async function getPageData() {
+  const profileReq = supabase.from('profile').select('*').limit(1).single();
+  const projectsReq = supabase.from('projects').select('*').order('created_at', { ascending: false });
+  const skillsReq = supabase.from('skills').select('*');
+
+  const [
+    { data: profile, error: profileError },
+    { data: projects, error: projectsError },
+    { data: skills, error: skillsError }
+  ] = await Promise.all([profileReq, projectsReq, skillsReq]);
+
+  if (profileError || projectsError || skillsError) {
+    console.error("Veri çekme hatası:", profileError || projectsError || skillsError);
+  }
+  
+  return { profile, projects: projects || [], skills: skills || [] };
+}
+
+
+export default async function HomePage() {
+  const { profile, projects, skills } = await getPageData();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <Box sx={{ bgcolor: 'background.default', color: 'text.primary' }}>
+      <Navbar />
+      
+      <main>
+  
+        
+        {/* Bölüm 2: Projeler (Kartlar) */}
+        <ProjectsGrid projects={projects} />
+
+        {/* Bölüm 3: Yetenekler */}
+        <Skills skills={skills} />
+        
+        {/* Bölüm 4: İletişim */}
       </main>
-    </div>
+
+      <Footer />
+    </Box>
   );
 }
