@@ -1,6 +1,5 @@
-// app/layout.js
-import ThemeProvider from './components/ThemeProvider';
-
+// src/app/layout.js
+import ThemeProvider from './components/ThemeProvider'; // <-- DOĞRUSU BU
 export const metadata = {
   title: 'Gelişmiş Portfolyo Sitesi',
   description: 'Supabase ve Next.js ile güçlendirilmiştir',

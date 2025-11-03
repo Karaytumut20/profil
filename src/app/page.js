@@ -1,10 +1,13 @@
 // src/app/page.js
-import { supabase } from '../lib/supabaseClient'; // Bu yolun da doğru olduğundan emin olun
+import { supabase } from '../lib/supabaseClient'; // Bu yol doğru (src/lib içinde)
 import { Container, Box } from '@mui/material';
+
+// Yollar './' (aynı dizin) olmalı ve eksik ContactForm eklenmeli
 import Navbar from './components/public/Navbar';
 import Hero from './components/public/Hero';
-import ProjectsGrid from './components/public/ProjectsGrid'; // YOLU DÜZELT
-import Skills from './components/public/Skills';       // YOLU DÜZELT
+import ProjectsGrid from './components/public/ProjectsGrid';
+import Skills from './components/public/Skills';
+import ContactForm from './components/public/ContactForm'; // <-- EKSİK IMPORT EKLENDİ
 import Footer from './components/public/Footer';
 
 // Verileri sunucuda paralel olarak çek
@@ -35,7 +38,8 @@ export default async function HomePage() {
       <Navbar />
       
       <main>
-  
+        {/* Bölüm 1: Hero (Profil Bilgileri) - Geri eklendi */}
+        {profile && <Hero profile={profile} />}
         
         {/* Bölüm 2: Projeler (Kartlar) */}
         <ProjectsGrid projects={projects} />
@@ -43,7 +47,8 @@ export default async function HomePage() {
         {/* Bölüm 3: Yetenekler */}
         <Skills skills={skills} />
         
-        {/* Bölüm 4: İletişim */}
+        {/* Bölüm 4: İletişim - Geri eklendi */}
+        <ContactForm /> 
       </main>
 
       <Footer />
