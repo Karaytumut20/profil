@@ -1,39 +1,87 @@
-// app/components/ThemeProvider.js
 'use client';
+import { useState } from 'react';
 import { createTheme, ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 
-// Kapsamlı Dark Tema
+// --- Hidrasyon Hatası Çözümü için Gerekli Import'lar ---
+import { useServerInsertedHTML } from 'next/navigation';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
+// ---------------------------------------------------
+
+// Dark Tema (Bu kısım aynı kalıyor)
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#90caf9', // Açık mavi (MUI dark default)
+      main: '#90caf9',
     },
     secondary: {
-      main: '#f48fb1', // Pembe (MUI dark default)
+      main: '#f48fb1',
     },
     background: {
-      default: '#121212', // Koyu arka plan
-      paper: '#1e1e1e',   // Kartlar ve yüzeyler için
+      default: '#121212',
+      paper: '#1e1e1e',
     },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontWeight: 700,
-    },
-    h2: {
-      fontWeight: 700,
-    },
+    h1: { fontWeight: 700 },
+    h2: { fontWeight: 700 },
   },
 });
 
+// ThemeProvider bileşenini "Theme Registry" olacak şekilde güncelliyoruz
 export default function ThemeProvider({ children }) {
+  
+  // --- Hidrasyon Hatası Çözümü Kodu ---
+  const [{ cache, flush }] = useState(() => {
+    const cache = createCache({ key: 'mui-styles' });
+    cache.compat = true;
+    const prevInsert = cache.insert;
+    let inserted = [];
+    cache.insert = (...args) => {
+      const serialized = args[1];
+      if (cache.inserted[serialized.name] === undefined) {
+        inserted.push(serialized.name);
+      }
+      return prevInsert(...args);
+    };
+    const flush = () => {
+      const prevInserted = inserted;
+      inserted = [];
+      return prevInserted;
+    };
+    return { cache, flush };
+  });
+
+  useServerInsertedHTML(() => {
+    const names = flush();
+    if (names.length === 0) {
+      return null;
+    }
+    let styles = '';
+    for (const name of names) {
+      styles += cache.inserted[name];
+    }
+    return (
+      <style
+        key={cache.key}
+        data-emotion={`${cache.key} ${names.join(' ')}`}
+        dangerouslySetInnerHTML={{
+          __html: styles,
+        }}
+      />
+    );
+  });
+  // ------------------------------------
+
   return (
-    <MUIThemeProvider theme={darkTheme}>
-      <CssBaseline /> {/* Tarayıcı varsayılanlarını sıfırlar ve temayı uygular */}
-      {children}
-    </MUIThemeProvider>
+    <CacheProvider value={cache}>
+      <MUIThemeProvider theme={darkTheme}>
+        <CssBaseline /> {/* CssBaseline artık burada */}
+        {children}
+      </MUIThemeProvider>
+    </CacheProvider>
   );
 }
