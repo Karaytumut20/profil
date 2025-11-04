@@ -1,7 +1,7 @@
 // src/components/public/ContactForm.js
 'use client';
 import { useState } from 'react';
-import { Container, Box, Typography, TextField, Button, CircularProgress, Alert, Grid } from '@mui/material'; // Grid'i ekledim
+import { Container, Box, Typography, TextField, Button, CircularProgress, Alert, Grid } from '@mui/material';
 
 export default function ContactForm() {
   const [name, setName] = useState('');
@@ -17,15 +17,35 @@ export default function ContactForm() {
     setSuccess(false);
     setError('');
 
-    // Şimdilik sadece bir gecikme simülasyonu yapalım
-    setTimeout(() => {
-      console.log({ name, email, message });
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, message }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // API'den gelen hatayı veya genel bir hatayı göster
+        throw new Error(data.error || 'Mesaj gönderilirken bir hata oluştu.');
+      }
+
+      // Başarılı
       setLoading(false);
       setSuccess(true);
+      // Formu temizle
       setName('');
       setEmail('');
       setMessage('');
-    }, 1500);
+
+    } catch (err) {
+      // Hata
+      setLoading(false);
+      setError(err.message);
+    }
   };
 
   return (

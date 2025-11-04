@@ -1,8 +1,9 @@
-// app/admin/layout.js
+// src/app/admin/layout.js
 'use client';
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { useRouter } from 'next/navigation';
+// YOL DÜZELTİLDİ: İki nokta
+import { supabase } from '../../../../lib/supabaseClient'; 
+import { useRouter, usePathname } from 'next/navigation';
 import { Box, Drawer, AppBar, Toolbar, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, CircularProgress, CssBaseline } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -23,19 +24,32 @@ export default function AdminLayout({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname(); 
+
+  const isLoginPage = pathname.startsWith('/admin/login');
 
   useEffect(() => {
+    // 1. Eğer login sayfasındaysak, loading'i kapat ve geri dön (formu göster).
+    if (isLoginPage) {
+      setLoading(false);
+      return;
+    }
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      
       if (!session) {
+        // GÜVENLİK DÜZELTMESİ: Oturum yoksa, loading=true kalır (spinner görünür)
+        // ve kullanıcı login sayfasına yönlendirilir. Korumalı içerik render edilmez.
         router.replace('/admin/login');
       } else {
+        // Oturum varsa, kullanıcıyı set et ve loading'i kapat (dashboard'u göster).
         setUser(session.user);
         setLoading(false);
       }
     };
     checkSession();
-  }, [router]);
+  }, [router, pathname, isLoginPage]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -43,6 +57,7 @@ export default function AdminLayout({ children }) {
   };
 
   if (loading) {
+    // Loading true olduğu sürece (Oturum kontrol edilene kadar veya başarısız olana kadar), spinner gösterilir.
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
@@ -50,6 +65,12 @@ export default function AdminLayout({ children }) {
     );
   }
 
+  // Eğer loading bittiyse VE login sayfasındaysak, sadece formu göster.
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
+
+  // Oturum varsa ve login sayfasında değilsek, normal admin panelini göster.
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -86,6 +107,7 @@ export default function AdminLayout({ children }) {
               </ListItemButton>
             </ListItem>
           ))}
+          {/* LOGOUT BUTONU */}
           <ListItem disablePadding>
               <ListItemButton onClick={handleLogout} sx={{color: 'error.main'}}>
                 <ListItemIcon><LogoutIcon color="error" /></ListItemIcon>
@@ -99,7 +121,7 @@ export default function AdminLayout({ children }) {
         component="main"
         sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3, minHeight: '100vh' }}
       >
-        <Toolbar /> {/* AppBar'ın altından başlamak için */}
+        <Toolbar /> 
         {children}
       </Box>
     </Box>

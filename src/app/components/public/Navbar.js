@@ -29,7 +29,7 @@ export default function Navbar() {
             <Button color="inherit" href="#projects">Projeler</Button>
             <Button color="inherit" href="#skills">Yetenekler</Button>
             <Button color="inherit" href="#contact">İletişim</Button>
-            <Button component={Link} href="/admin/dashboard" variant="outlined" sx={{ ml: 2 }}>
+            <Button component={Link} href="/admin/login" variant="outlined" sx={{ ml: 2 }}>
               Admin Panel
             </Button>
           </Box>

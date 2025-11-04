@@ -1,7 +1,8 @@
-// app/admin/login/page.js
+// src/app/admin/(auth)/login/page.js
 'use client';
 import { useState } from 'react';
-import { supabase } from '../../../lib/supabaseClient';
+// YOL DÜZELTİLDİ: Dört nokta
+import { supabase } from '../../../../lib/supabaseClient'; 
 import { useRouter } from 'next/navigation';
 import { Container, Box, Typography, TextField, Button, Alert } from '@mui/material';
 
@@ -15,8 +16,14 @@ export default function AdminLogin() {
     e.preventDefault();
     setError(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) setError(error.message);
-    else router.push('/admin/dashboard');
+    
+    if (error) {
+        setError(error.message);
+    }
+    else {
+        // Başarılı giriş sonrası dashboard'a yönlendir.
+        router.push('/admin/dashboard');
+    }
   };
 
   return (

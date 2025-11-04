@@ -1,8 +1,7 @@
-// app/admin/layout.js
 'use client';
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
-import { useRouter, usePathname } from 'next/navigation'; // <-- usePathname eklendi
+import { supabase } from '../../../lib/supabaseClient';
+import { useRouter, usePathname } from 'next/navigation';
 import { Box, Drawer, AppBar, Toolbar, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, CircularProgress, CssBaseline } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -23,29 +22,33 @@ export default function AdminLayout({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname(); // <-- Geçerli yolu al
+  const pathname = usePathname(); 
 
-  const isLoginPage = pathname === '/admin/login'; // <-- Login sayfasında mıyız?
+  // DÜZELTME: pathname.startsWith kullanıldı. Bu, /admin/login/ veya /admin/login?code= gibi durumları yakalar.
+  const isLoginPage = pathname.startsWith('/admin/login');
 
   useEffect(() => {
-    // <-- EĞER LOGIN SAYFASINDAYSAK KONTROL ETME -->
+    // 1. Eğer login sayfasındaysak, auth check yapmaya gerek yok ve loading'i kapat.
     if (isLoginPage) {
-      setLoading(false); // Yüklenmeyi durdur ve sayfayı göster
+      setLoading(false);
       return;
     }
-    // <-- KONTROL BİTTİ -->
 
+    // 2. Diğer sayfalardaysak oturum kontrolü yap.
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      
       if (!session) {
         router.replace('/admin/login');
+        // FAIL-SAFE: Oturum yoksa bile loading'i kapatıyoruz ki sonsuza kadar dönmesin.
+        setLoading(false); 
       } else {
         setUser(session.user);
         setLoading(false);
       }
     };
     checkSession();
-  }, [router, pathname, isLoginPage]); // <-- Bağımlılıklara eklendi
+  }, [router, pathname, isLoginPage]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -60,13 +63,12 @@ export default function AdminLayout({ children }) {
     );
   }
 
-  // <-- EĞER LOGIN SAYFASINDAYSAK SADECE SAYFAYI GÖSTER (LAYOUT'U GÖSTERME) -->
+  // Eğer login sayfasındaysak, sadece formu göster (menü ve AppBar yok)
   if (isLoginPage) {
     return <>{children}</>;
   }
-  // <-- KONTROL BİTTİ -->
 
-  // Oturum varsa ve login sayfasında değilsek, normal admin panelini göster
+  // Oturum varsa, normal admin panelini göster
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -116,7 +118,7 @@ export default function AdminLayout({ children }) {
         component="main"
         sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3, minHeight: '100vh' }}
       >
-        <Toolbar /> {/* AppBar'ın altından başlamak için */}
+        <Toolbar /> 
         {children}
       </Box>
     </Box>
