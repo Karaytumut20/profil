@@ -1,11 +1,11 @@
 // src/app/admin/dashboard/projects/page.js
 'use client';
 import { useState, useEffect } from 'react';
-import { supabase } from '../../../../lib/supabaseClient'; // Yol: ../../../../lib/supabaseClient
+import { supabase } from '../../../../../lib/supabaseClient'; // Yol: ../../../../lib/supabaseClient
 import { Typography, List, ListItem, ListItemText, IconButton, Paper, Box, Grid } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ProjectForm from '../../../components/admin/ProjectForm'; // Yol: ../../../components/admin/ProjectForm
+import ProjectForm from '../../../../components/admin/ProjectForm'; // Yol: ../../../components/admin/ProjectForm
 
 export default function ManageProjects() {
   const [projects, setProjects] = useState([]);

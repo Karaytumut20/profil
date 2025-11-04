@@ -2,7 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 // YOL DÜZELTİLDİ: İki nokta
-import { supabase } from '../../../../lib/supabaseClient'; 
+import { supabase } from '../../../lib/supabaseClient'; 
 import { useRouter, usePathname } from 'next/navigation';
 import { Box, Drawer, AppBar, Toolbar, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, CircularProgress, CssBaseline } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';

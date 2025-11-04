@@ -2,7 +2,7 @@
 'use client';
 import { useState } from 'react';
 // YOL DÜZELTİLDİ: Dört nokta
-import { supabase } from '../../../../lib/supabaseClient'; 
+import { supabase } from '../../../lib/supabaseClient'; 
 import { useRouter } from 'next/navigation';
 import { Container, Box, Typography, TextField, Button, Alert } from '@mui/material';
 
